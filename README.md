@@ -1,58 +1,126 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# WSRMS - Workshop Repair Service Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+WSRMS is a Laravel-based web system developed for managing workshop repair services, especially for PC, laptop, and handphone repair workflows. The system is designed to support customers, administrators, and technicians through a structured repair management process.
 
-## About Laravel
+> **Project Status:** In Progress  
+> This system is still under development. Core modules are working, but UI polishing, testing, and future enhancements are still ongoing.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Project Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Workshop Repair Service Management System helps a repair workshop manage customer repair requests from submission until pickup. Customers can submit repair requests, track repair progress, view invoices, make payment simulation, and download receipts. Admin users can manage repair requests, customers, technicians, spare parts, invoices, payments, reports, and notifications. Technicians can view assigned tasks, update diagnosis, record spare parts used, and mark repairs as completed.
 
-## Learning Laravel
+The system is developed using Laravel 11 and follows a role-based access structure.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Main User Roles
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 1. Admin
 
-## Agentic Development
+The admin manages the overall repair workflow and system records.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Main functions:
 
-```bash
-composer require laravel/boost --dev
+- Manage repair requests
+- Approve or reject repair requests
+- Assign technicians
+- Manage customers
+- Manage technicians
+- Manage devices
+- Manage spare parts
+- Generate invoices
+- View payments
+- View reports
+- Receive system notifications
 
-php artisan boost:install
-```
+### 2. Customer
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The customer uses the system to request and track repair services.
 
-## Contributing
+Main functions:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- Register and login
+- Submit repair requests
+- Track repair status
+- View assigned technician
+- View diagnosis and repair notes
+- View invoice
+- Make payment simulation
+- View and download receipt PDF
+- Receive pickup notification by system notification and email
 
-## Code of Conduct
+### 3. Technician
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The technician handles assigned repair tasks.
 
-## Security Vulnerabilities
+Main functions:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- View assigned repair tasks
+- Update diagnosis result
+- Add repair notes
+- Record spare parts used
+- Mark repair as completed
+- Receive task assignment notifications
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Completed Features
+
+- User authentication
+- Role-based access control
+- Admin dashboard
+- Customer dashboard
+- Technician dashboard
+- Customer repair request module
+- Admin repair request approval and assignment
+- Technician repair task workflow
+- Spare part management
+- Invoice management
+- Payment simulation
+- Receipt page
+- Receipt PDF download
+- System notification module
+- Gmail email notification for pickup message
+- Admin customer management
+- Admin technician management
+- Admin device management
+- Admin payment management
+- Admin report module
+- Light professional UI theme
+- Redesigned login page
+- Redesigned register page
+- Vertical sidebar navigation
+- Redesigned admin dashboard
+- Redesigned customer dashboard
+- Public homepage
+
+---
+
+## Current Development Progress
+
+The core system flow is already working:
+
+```text
+Customer submits repair request
+↓
+Admin approves request
+↓
+Admin assigns technician
+↓
+Technician updates diagnosis
+↓
+Technician records spare parts
+↓
+Technician marks repair as completed
+↓
+Admin generates invoice
+↓
+Customer makes payment simulation
+↓
+System generates receipt
+↓
+Customer downloads receipt PDF
+↓
+Customer receives pickup notification
