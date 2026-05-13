@@ -124,3 +124,23 @@ System generates receipt
 Customer downloads receipt PDF
 ↓
 Customer receives pickup notification
+
+```
+
+## Future Enhancements
+
+Planned improvements:
+
+- ToyyibPay/Chip in payment gateway integration
+- WhatsApp notification API for pickup and repair status updates
+- Chart.js dashboard analytics
+- Advanced search and filtering for repair requests, invoices, payments, and customers
+- Monthly sales monitoring for admin
+- Weekly, monthly, and yearly sales report summary in the admin report module
+- Admin can download reports in PDF format based on weekly, monthly, and yearly periods
+- Report filter by date range, payment status, repair status, and technician
+- Better mobile responsiveness
+- Admin reset technician password
+- Customer profile editing
+- UI polishing for all CRUD pages
+- More complete system testing
