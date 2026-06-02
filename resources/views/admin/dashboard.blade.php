@@ -385,6 +385,108 @@
                 </div>
             </div>
 
+            {{-- Sales Analytics --}}
+            <div class="space-y-5">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-slate-900">
+                            Sales Analytics
+                        </h3>
+                        <p class="text-sm text-slate-500">
+                            Monthly paid payment performance for the current year.
+                        </p>
+                    </div>
+
+                    <span class="inline-flex w-fit rounded-full bg-slate-900 px-4 py-2 text-xs font-extrabold text-white">
+                        {{ $salesAnalytics['unpaid_invoices'] }} unpaid invoices
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+                    <div class="ws-card p-6 border border-blue-100">
+                        <p class="text-sm font-bold text-slate-500">
+                            Total Sales This Month
+                        </p>
+                        <p class="mt-4 text-3xl font-extrabold text-blue-600">
+                            RM {{ number_format($salesAnalytics['sales_this_month'], 2) }}
+                        </p>
+                        <p class="mt-1 text-xs font-semibold text-slate-400">
+                            Paid payments received this month
+                        </p>
+                    </div>
+
+                    <div class="ws-card p-6 border border-sky-100">
+                        <p class="text-sm font-bold text-slate-500">
+                            Total Sales This Year
+                        </p>
+                        <p class="mt-4 text-3xl font-extrabold text-sky-600">
+                            RM {{ number_format($salesAnalytics['sales_this_year'], 2) }}
+                        </p>
+                        <p class="mt-1 text-xs font-semibold text-slate-400">
+                            Paid payments received this year
+                        </p>
+                    </div>
+
+                    <div class="ws-card p-6 border border-green-100">
+                        <p class="text-sm font-bold text-slate-500">
+                            Completed Repairs This Month
+                        </p>
+                        <p class="mt-4 text-4xl font-extrabold text-green-600">
+                            {{ $salesAnalytics['completed_repairs_this_month'] }}
+                        </p>
+                        <p class="mt-1 text-xs font-semibold text-slate-400">
+                            Jobs marked completed this month
+                        </p>
+                    </div>
+
+                    <div class="ws-card p-6 border border-emerald-100">
+                        <p class="text-sm font-bold text-slate-500">
+                            Paid Invoices This Month
+                        </p>
+                        <p class="mt-4 text-4xl font-extrabold text-emerald-600">
+                            {{ $salesAnalytics['paid_invoices_this_month'] }}
+                        </p>
+                        <p class="mt-1 text-xs font-semibold text-slate-400">
+                            Invoices paid during this month
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                    <div class="ws-card overflow-hidden border border-slate-300">
+                        <div class="px-6 py-4 bg-slate-900 text-white">
+                            <h4 class="text-lg font-extrabold">
+                                Monthly Sales Chart
+                            </h4>
+                            <p class="mt-1 text-sm text-slate-300">
+                                Paid payment value by month.
+                            </p>
+                        </div>
+                        <div class="p-6 bg-white">
+                            <div class="h-80">
+                                <canvas id="monthlySalesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ws-card overflow-hidden border border-slate-300">
+                        <div class="px-6 py-4 bg-slate-900 text-white">
+                            <h4 class="text-lg font-extrabold">
+                                Monthly Payment Count Chart
+                            </h4>
+                            <p class="mt-1 text-sm text-slate-300">
+                                Number of successful payments by month.
+                            </p>
+                        </div>
+                        <div class="p-6 bg-white">
+                            <div class="h-80">
+                                <canvas id="monthlyPaymentsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Recent Repair Requests --}}
             <div class="ws-card overflow-hidden border border-slate-300">
                 <div
@@ -496,4 +598,120 @@
 
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const monthlySalesLabels = @json($monthlySalesLabels);
+            const monthlySalesData = @json($monthlySalesData);
+            const monthlyPaymentCounts = @json($monthlyPaymentCounts);
+
+            const salesCanvas = document.getElementById('monthlySalesChart');
+            const paymentsCanvas = document.getElementById('monthlyPaymentsChart');
+
+            if (salesCanvas) {
+                new Chart(salesCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: monthlySalesLabels,
+                        datasets: [{
+                            label: 'Monthly Sales',
+                            data: monthlySalesData,
+                            backgroundColor: 'rgba(37, 99, 235, 0.78)',
+                            borderColor: 'rgb(29, 78, 216)',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            maxBarThickness: 42,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const value = Number(context.parsed.y || 0);
+
+                                        return 'Sales: RM ' + value.toLocaleString('en-MY', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        });
+                                    },
+                                },
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return 'RM ' + Number(value).toLocaleString('en-MY');
+                                    },
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.25)',
+                                },
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (paymentsCanvas) {
+                new Chart(paymentsCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: monthlySalesLabels,
+                        datasets: [{
+                            label: 'Payment Count',
+                            data: monthlyPaymentCounts,
+                            borderColor: 'rgb(22, 163, 74)',
+                            backgroundColor: 'rgba(22, 163, 74, 0.14)',
+                            borderWidth: 3,
+                            fill: true,
+                            pointBackgroundColor: 'rgb(22, 163, 74)',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.35,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.25)',
+                                },
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+        });
+    </script>
 </x-app-layout>

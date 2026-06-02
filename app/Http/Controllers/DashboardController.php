@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\RepairRequest;
 use App\Models\SparePart;
 use App\Models\Technician;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +45,57 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get();
 
-            return view('admin.dashboard', compact('summary', 'recentRepairRequests'));
+            $now = Carbon::now();
+            $startOfMonth = $now->copy()->startOfMonth();
+            $endOfMonth = $now->copy()->endOfMonth();
+
+            $monthlySalesLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            $monthlySalesData = array_fill(0, 12, 0);
+            $monthlyPaymentCounts = array_fill(0, 12, 0);
+
+            $monthlyPayments = Payment::query()
+                ->selectRaw('MONTH(paid_at) as month, SUM(amount_paid) as total_sales, COUNT(*) as payment_count')
+                ->where('status', 'paid')
+                ->whereYear('paid_at', $now->year)
+                ->groupByRaw('MONTH(paid_at)')
+                ->get();
+
+            foreach ($monthlyPayments as $monthlyPayment) {
+                $monthIndex = (int) $monthlyPayment->month - 1;
+
+                if ($monthIndex >= 0 && $monthIndex < 12) {
+                    $monthlySalesData[$monthIndex] = (float) $monthlyPayment->total_sales;
+                    $monthlyPaymentCounts[$monthIndex] = (int) $monthlyPayment->payment_count;
+                }
+            }
+
+            $salesAnalytics = [
+                'sales_this_month' => Payment::where('status', 'paid')
+                    ->whereBetween('paid_at', [$startOfMonth, $endOfMonth])
+                    ->sum('amount_paid'),
+                'sales_this_year' => Payment::where('status', 'paid')
+                    ->whereYear('paid_at', $now->year)
+                    ->sum('amount_paid'),
+                'completed_repairs_this_month' => RepairRequest::where('status', 'completed')
+                    ->whereBetween('completed_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+                    ->count(),
+                'paid_invoices_this_month' => Invoice::where('status', 'paid')
+                    ->whereHas('payment', function ($query) use ($startOfMonth, $endOfMonth): void {
+                        $query->where('status', 'paid')
+                            ->whereBetween('paid_at', [$startOfMonth, $endOfMonth]);
+                    })
+                    ->count(),
+                'unpaid_invoices' => Invoice::where('status', 'unpaid')->count(),
+            ];
+
+            return view('admin.dashboard', compact(
+                'summary',
+                'recentRepairRequests',
+                'monthlySalesLabels',
+                'monthlySalesData',
+                'monthlyPaymentCounts',
+                'salesAnalytics'
+            ));
         }
 
         if ($user->role === 'customer') {
