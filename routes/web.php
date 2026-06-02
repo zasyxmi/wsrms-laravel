@@ -98,6 +98,12 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/technicians/{technician}/edit', [AdminTechnicianController::class, 'edit'])
             ->name('technicians.edit');
 
+        Route::get('/technicians/{technician}/reset-password', [AdminTechnicianController::class, 'editPassword'])
+            ->name('technicians.reset-password');
+
+        Route::patch('/technicians/{technician}/reset-password', [AdminTechnicianController::class, 'updatePassword'])
+            ->name('technicians.update-password');
+
         Route::patch('/technicians/{technician}', [AdminTechnicianController::class, 'update'])
             ->name('technicians.update');
 

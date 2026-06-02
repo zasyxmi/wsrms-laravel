@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ResetTechnicianPasswordRequest;
 use App\Http\Requests\Admin\StoreTechnicianRequest;
 use App\Http\Requests\Admin\UpdateTechnicianRequest;
 use App\Models\SystemNotification;
@@ -73,6 +74,13 @@ class TechnicianController extends Controller
         return view('admin.technicians.edit', compact('technician'));
     }
 
+    public function editPassword(Technician $technician): View
+    {
+        $technician->load('user');
+
+        return view('admin.technicians.reset-password', compact('technician'));
+    }
+
     public function update(UpdateTechnicianRequest $request, Technician $technician): RedirectResponse
     {
         DB::transaction(function () use ($request, $technician): void {
@@ -90,6 +98,19 @@ class TechnicianController extends Controller
         return redirect()
             ->route('admin.technicians.show', $technician)
             ->with('success', 'Technician details have been updated successfully.');
+    }
+
+    public function updatePassword(ResetTechnicianPasswordRequest $request, Technician $technician): RedirectResponse
+    {
+        $technician->load('user');
+
+        $technician->user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()
+            ->route('admin.technicians.show', $technician)
+            ->with('success', 'Technician password has been reset successfully.');
     }
 
     public function destroy(Technician $technician): RedirectResponse

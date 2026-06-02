@@ -11,6 +11,11 @@
                     Edit Technician
                 </a>
 
+                <a href="{{ route('admin.technicians.reset-password', $technician) }}"
+                    class="ws-btn-secondary !w-auto !px-4 !py-2 !rounded-md !text-sm whitespace-nowrap">
+                    Reset Password
+                </a>
+
                 @if ($technician->repairRequests->count() === 0)
                     <form method="POST" action="{{ route('admin.technicians.destroy', $technician) }}"
                         onsubmit="return confirm('Are you sure you want to delete this technician?');">
