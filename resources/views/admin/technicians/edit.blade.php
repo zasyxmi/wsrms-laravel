@@ -76,11 +76,21 @@
                                 Specialization
                             </label>
 
-                            <input type="text"
-                                   id="specialization"
-                                   name="specialization"
-                                   value="{{ old('specialization', $technician->specialization) }}"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <select id="specialization"
+                                    name="specialization"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="Handphone" {{ old('specialization', $technician->specialization) === 'Handphone' ? 'selected' : '' }}>
+                                    Handphone
+                                </option>
+
+                                <option value="Laptop" {{ old('specialization', $technician->specialization) === 'Laptop' ? 'selected' : '' }}>
+                                    Laptop
+                                </option>
+
+                                <option value="PC" {{ old('specialization', $technician->specialization) === 'PC' ? 'selected' : '' }}>
+                                    PC
+                                </option>
+                            </select>
 
                             @error('specialization')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
