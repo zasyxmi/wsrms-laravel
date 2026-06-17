@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'toyyibpay' => [
+        'mode' => env('TOYYIBPAY_MODE', 'sandbox'),
+        'base_url' => env('TOYYIBPAY_BASE_URL', 'https://dev.toyyibpay.com'),
+        'secret_key' => env('TOYYIBPAY_SECRET_KEY'),
+        'category_code' => env('TOYYIBPAY_CATEGORY_CODE'),
+    ],
+
 ];

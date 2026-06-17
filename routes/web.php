@@ -29,6 +29,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('/customer/toyyibpay/return', [CustomerPaymentController::class, 'toyyibpayReturn'])
+    ->name('customer.toyyibpay.return');
+
+Route::post('/toyyibpay/callback', [CustomerPaymentController::class, 'toyyibpayCallback'])
+    ->name('toyyibpay.callback');
+
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -135,6 +141,9 @@ Route::middleware(['auth', 'role:customer'])
 
         Route::post('/invoices/{invoice}/pay', [CustomerPaymentController::class, 'pay'])
             ->name('invoices.pay');
+
+        Route::post('/invoices/{invoice}/toyyibpay', [CustomerPaymentController::class, 'payWithToyyibPay'])
+            ->name('toyyibpay.pay');
 
         Route::get('/receipts/{payment}', [CustomerReceiptController::class, 'show'])
             ->name('receipts.show');

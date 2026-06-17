@@ -15,6 +15,10 @@ class Payment extends Model
         'payment_method',
         'transaction_reference',
         'status',
+        'gateway',
+        'gateway_reference',
+        'gateway_bill_code',
+        'gateway_status',
         'receipt_number',
         'paid_at',
     ];

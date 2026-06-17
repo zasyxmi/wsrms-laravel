@@ -110,6 +110,28 @@
                                 <span class="font-semibold">Amount Paid:</span>
                                 RM {{ number_format($payment->amount_paid, 2) }}
                             </p>
+
+                            @if ($payment->gateway)
+                                <p class="text-gray-700">
+                                    <span class="font-semibold">Gateway:</span>
+                                    {{ $payment->gateway }}
+                                </p>
+
+                                <p class="text-gray-700">
+                                    <span class="font-semibold">Gateway Bill Code:</span>
+                                    {{ $payment->gateway_bill_code ?? '-' }}
+                                </p>
+
+                                <p class="text-gray-700">
+                                    <span class="font-semibold">Gateway Reference:</span>
+                                    {{ $payment->gateway_reference ?? '-' }}
+                                </p>
+
+                                <p class="text-gray-700">
+                                    <span class="font-semibold">Gateway Status:</span>
+                                    {{ $payment->gateway_status ? ucwords($payment->gateway_status) : '-' }}
+                                </p>
+                            @endif
                         </div>
                     </div>
 

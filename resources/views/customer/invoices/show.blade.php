@@ -206,18 +206,33 @@
                                 </p>
 
                                 <p class="text-gray-700 mt-1 mb-4">
-                                    Click the button below to simulate payment for this invoice.
+                                    Choose a payment option for this invoice.
                                 </p>
 
-                                <form method="POST" action="{{ route('customer.invoices.pay', $invoice) }}"
-                                    onsubmit="return confirm('Proceed with payment simulation?');">
-                                    @csrf
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <form method="POST" action="{{ route('customer.invoices.pay', $invoice) }}"
+                                        onsubmit="return confirm('Proceed with payment simulation?');">
+                                        @csrf
 
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
-                                        Pay Now
-                                    </button>
-                                </form>
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+                                            Pay Simulation
+                                        </button>
+                                    </form>
+
+                                    <form method="POST" action="{{ route('customer.toyyibpay.pay', $invoice) }}">
+                                        @csrf
+
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">
+                                            Pay with ToyyibPay Sandbox
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <p class="text-gray-600 text-sm mt-3">
+                                    Sandbox payment redirects to ToyyibPay test payment page.
+                                </p>
                             </div>
                         @endif
                     </div>

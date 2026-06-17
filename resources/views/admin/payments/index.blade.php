@@ -32,6 +32,8 @@
                                     <th class="border px-4 py-2 text-left">Device</th>
                                     <th class="border px-4 py-2 text-left">Amount Paid</th>
                                     <th class="border px-4 py-2 text-left">Method</th>
+                                    <th class="border px-4 py-2 text-left">Gateway</th>
+                                    <th class="border px-4 py-2 text-left">Gateway Status</th>
                                     <th class="border px-4 py-2 text-left">Status</th>
                                     <th class="border px-4 py-2 text-left">Paid At</th>
                                     <th class="border px-4 py-2 text-left">Action</th>
@@ -71,6 +73,14 @@
                                         </td>
 
                                         <td class="border px-4 py-2">
+                                            {{ $payment->gateway ?? '-' }}
+                                        </td>
+
+                                        <td class="border px-4 py-2">
+                                            {{ $payment->gateway_status ? ucwords($payment->gateway_status) : '-' }}
+                                        </td>
+
+                                        <td class="border px-4 py-2">
                                             @if ($payment->status === 'paid')
                                                 <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-700">
                                                     Paid
@@ -95,7 +105,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="10" class="border px-4 py-4 text-center text-gray-500">
+                                        <td colspan="12" class="border px-4 py-4 text-center text-gray-500">
                                             No payments found.
                                         </td>
                                     </tr>
