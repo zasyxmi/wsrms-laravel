@@ -26,8 +26,14 @@
                             </h3>
                         </div>
 
+                        @php
+                            $statusLabel = in_array($repairRequest->status, ['approved', 'assigned'], true)
+                                ? 'Approved - Waiting for Device'
+                                : ucwords(str_replace('_', ' ', $repairRequest->status));
+                        @endphp
+
                         <span class="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
-                            {{ ucwords(str_replace('_', ' ', $repairRequest->status)) }}
+                            {{ $statusLabel }}
                         </span>
                     </div>
 

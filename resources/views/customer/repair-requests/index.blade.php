@@ -60,8 +60,14 @@
                                         </td>
 
                                         <td class="border px-4 py-2">
+                                            @php
+                                                $statusLabel = in_array($repairRequest->status, ['approved', 'assigned'], true)
+                                                    ? 'Approved - Waiting for Device'
+                                                    : ucwords(str_replace('_', ' ', $repairRequest->status));
+                                            @endphp
+
                                             <span class="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
-                                                {{ ucwords(str_replace('_', ' ', $repairRequest->status)) }}
+                                                {{ $statusLabel }}
                                             </span>
                                         </td>
 

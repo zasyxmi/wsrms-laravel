@@ -26,8 +26,14 @@
                             </h3>
                         </div>
 
+                        @php
+                            $statusLabel = in_array($repairRequest->status, ['approved', 'assigned'], true)
+                                ? 'Approved - Waiting for Device'
+                                : ucwords(str_replace('_', ' ', $repairRequest->status));
+                        @endphp
+
                         <span class="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
-                            {{ ucwords(str_replace('_', ' ', $repairRequest->status)) }}
+                            {{ $statusLabel }}
                         </span>
                     </div>
 
@@ -65,9 +71,9 @@
                                 {{ $repairRequest->technician?->user?->name ?? 'Not assigned yet' }}
                             </p>
 
-                            @if (! $repairRequest->technician && $repairRequest->status === 'approved')
+                            @if (in_array($repairRequest->status, ['approved', 'assigned'], true))
                                 <p class="text-sm text-gray-600 mt-1">
-                                    Your request is approved and waiting for technician assignment.
+                                    Your request is approved. Please bring your device to the workshop for physical diagnosis.
                                 </p>
                             @endif
                         </div>

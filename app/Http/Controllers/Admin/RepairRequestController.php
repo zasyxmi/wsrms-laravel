@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AssignTechnicianRequest;
+use App\Mail\RepairRequestApprovedMail;
 use App\Models\RepairRequest;
 use App\Models\SystemNotification;
 use App\Models\Technician;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class RepairRequestController extends Controller
 {
@@ -59,7 +63,7 @@ class RepairRequestController extends Controller
                 SystemNotification::create([
                     'user_id' => $repairRequest->customer->user_id,
                     'title' => 'Repair Request Approved',
-                    'message' => 'Your repair request ' . $repairRequest->repair_code . ' has been approved and assigned to a technician.',
+                    'message' => 'Your repair request has been approved and assigned to ' . $assignedTechnician->user->name . '. Please bring your device to the workshop for physical diagnosis.',
                     'type' => 'success',
                 ]);
 
@@ -80,10 +84,12 @@ class RepairRequestController extends Controller
             SystemNotification::create([
                 'user_id' => $repairRequest->customer->user_id,
                 'title' => 'Repair Request Approved',
-                'message' => 'Your repair request ' . $repairRequest->repair_code . ' has been approved and is waiting for technician assignment.',
+                'message' => 'Your repair request has been approved. Please bring your device to the workshop for physical diagnosis.',
                 'type' => 'info',
             ]);
         });
+
+        $this->sendApprovalEmail($repairRequest);
 
         if (! $assignedTechnician) {
             return redirect()
@@ -192,5 +198,20 @@ class RepairRequestController extends Controller
             ->orderBy('active_repair_requests_count')
             ->orderBy('id')
             ->first();
+    }
+
+    private function sendApprovalEmail(RepairRequest $repairRequest): void
+    {
+        $repairRequest->loadMissing(['customer.user', 'device', 'technician.user']);
+
+        try {
+            Mail::to($repairRequest->customer->user->email)
+                ->send(new RepairRequestApprovedMail($repairRequest));
+        } catch (Throwable $exception) {
+            Log::warning('Repair request approval email failed to send.', [
+                'repair_request_id' => $repairRequest->id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 }
