@@ -9,6 +9,7 @@ use App\Models\SystemNotification;
 use App\Models\Technician;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class RepairRequestController extends Controller
 {
@@ -43,20 +44,56 @@ class RepairRequestController extends Controller
                 ->with('error', 'Only submitted repair requests can be approved.');
         }
 
-        $repairRequest->update([
-            'status' => 'approved',
-        ]);
+        $assignedTechnician = null;
 
-        SystemNotification::create([
-            'user_id' => $repairRequest->customer->user_id,
-            'title' => 'Repair Request Approved',
-            'message' => 'Your repair request ' . $repairRequest->repair_code . ' has been approved by the admin.',
-            'type' => 'success',
-        ]);
+        DB::transaction(function () use ($repairRequest, &$assignedTechnician): void {
+            $repairRequest->loadMissing(['customer.user', 'device']);
+            $assignedTechnician = $this->findBestTechnicianForRequest($repairRequest);
+
+            if ($assignedTechnician) {
+                $repairRequest->update([
+                    'technician_id' => $assignedTechnician->id,
+                    'status' => 'assigned',
+                ]);
+
+                SystemNotification::create([
+                    'user_id' => $repairRequest->customer->user_id,
+                    'title' => 'Repair Request Approved',
+                    'message' => 'Your repair request ' . $repairRequest->repair_code . ' has been approved and assigned to a technician.',
+                    'type' => 'success',
+                ]);
+
+                SystemNotification::create([
+                    'user_id' => $assignedTechnician->user_id,
+                    'title' => 'New Repair Task Assigned',
+                    'message' => 'Repair request ' . $repairRequest->repair_code . ' has been assigned to you.',
+                    'type' => 'info',
+                ]);
+
+                return;
+            }
+
+            $repairRequest->update([
+                'status' => 'approved',
+            ]);
+
+            SystemNotification::create([
+                'user_id' => $repairRequest->customer->user_id,
+                'title' => 'Repair Request Approved',
+                'message' => 'Your repair request ' . $repairRequest->repair_code . ' has been approved and is waiting for technician assignment.',
+                'type' => 'info',
+            ]);
+        });
+
+        if (! $assignedTechnician) {
+            return redirect()
+                ->route('admin.repair-requests.show', $repairRequest)
+                ->with('error', 'Repair request approved, but no available technician matched the device type. Please assign manually.');
+        }
 
         return redirect()
             ->route('admin.repair-requests.show', $repairRequest)
-            ->with('success', 'Repair request has been approved successfully.');
+            ->with('success', 'Repair request approved and automatically assigned to ' . $assignedTechnician->user->name . '.');
     }
 
     public function reject(RepairRequest $repairRequest): RedirectResponse
@@ -85,10 +122,10 @@ class RepairRequestController extends Controller
 
     public function assignForm(RepairRequest $repairRequest): View|RedirectResponse
     {
-        if ($repairRequest->status !== 'approved') {
+        if (! in_array($repairRequest->status, ['approved', 'assigned'], true)) {
             return redirect()
                 ->route('admin.repair-requests.show', $repairRequest)
-                ->with('error', 'Only approved repair requests can be assigned to a technician.');
+                ->with('error', 'Only approved or assigned repair requests can be assigned to a technician.');
         }
 
         $repairRequest->load(['customer.user', 'device', 'technician.user']);
@@ -103,10 +140,10 @@ class RepairRequestController extends Controller
 
     public function assign(AssignTechnicianRequest $request, RepairRequest $repairRequest): RedirectResponse
     {
-        if ($repairRequest->status !== 'approved') {
+        if (! in_array($repairRequest->status, ['approved', 'assigned'], true)) {
             return redirect()
                 ->route('admin.repair-requests.show', $repairRequest)
-                ->with('error', 'Only approved repair requests can be assigned to a technician.');
+                ->with('error', 'Only approved or assigned repair requests can be assigned to a technician.');
         }
 
         $repairRequest->update([
@@ -133,5 +170,27 @@ class RepairRequestController extends Controller
         return redirect()
             ->route('admin.repair-requests.show', $repairRequest)
             ->with('success', 'Technician has been assigned successfully.');
+    }
+
+    private function findBestTechnicianForRequest(RepairRequest $repairRequest): ?Technician
+    {
+        $deviceType = $repairRequest->device?->device_type;
+
+        if (! $deviceType) {
+            return null;
+        }
+
+        return Technician::query()
+            ->with('user')
+            ->where('specialization', $deviceType)
+            ->where('availability_status', 'available')
+            ->withCount([
+                'repairRequests as active_repair_requests_count' => function ($query): void {
+                    $query->whereNotIn('status', ['completed', 'rejected', 'cancelled', 'unable_to_repair']);
+                },
+            ])
+            ->orderBy('active_repair_requests_count')
+            ->orderBy('id')
+            ->first();
     }
 }

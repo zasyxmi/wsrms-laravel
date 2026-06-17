@@ -64,6 +64,12 @@
                             <p class="font-medium">
                                 {{ $repairRequest->technician?->user?->name ?? 'Not assigned yet' }}
                             </p>
+
+                            @if (! $repairRequest->technician && $repairRequest->status === 'approved')
+                                <p class="text-sm text-gray-600 mt-1">
+                                    Your request is approved and waiting for technician assignment.
+                                </p>
+                            @endif
                         </div>
 
                         <div>

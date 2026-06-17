@@ -88,6 +88,13 @@
                         </div>
 
                         <div>
+                            <p class="text-sm text-gray-500">Assignment Status</p>
+                            <p class="font-medium">
+                                {{ $repairRequest->technician ? 'Assigned' : 'Waiting for assignment' }}
+                            </p>
+                        </div>
+
+                        <div>
                             <p class="text-sm text-gray-500">Request Date</p>
                             <p class="font-medium">
                                 {{ $repairRequest->request_date->format('d M Y') }}
@@ -146,13 +153,13 @@
                         </div>
                     @endif
 
-                    @if ($repairRequest->status === 'approved')
+                    @if (in_array($repairRequest->status, ['approved', 'assigned'], true))
                         <div class="border-t pt-6">
                             <p class="text-sm text-gray-500 mb-3">Technician Assignment</p>
 
                             <a href="{{ route('admin.repair-requests.assign-form', $repairRequest) }}"
                                 class="inline-block px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
-                                Assign Technician
+                                {{ $repairRequest->technician ? 'Reassign Technician' : 'Assign Technician' }}
                             </a>
                         </div>
                     @endif

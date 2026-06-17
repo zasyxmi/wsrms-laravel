@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRepairRequestRequest extends FormRequest
 {
@@ -14,7 +15,7 @@ class StoreRepairRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'device_type' => ['required', 'string', 'in:Phone,Laptop'],
+            'device_type' => ['required', 'string', Rule::in(['Handphone', 'Laptop', 'PC'])],
             'brand' => ['required', 'string', 'max:100'],
             'model' => ['required', 'string', 'max:100'],
             'serial_number' => ['nullable', 'string', 'max:100'],

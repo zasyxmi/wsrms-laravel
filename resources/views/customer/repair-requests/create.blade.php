@@ -29,8 +29,9 @@
                                     name="device_type"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="">-- Select Device Type --</option>
-                                <option value="Phone" {{ old('device_type') === 'Phone' ? 'selected' : '' }}>Phone</option>
+                                <option value="Handphone" {{ old('device_type') === 'Handphone' ? 'selected' : '' }}>Handphone</option>
                                 <option value="Laptop" {{ old('device_type') === 'Laptop' ? 'selected' : '' }}>Laptop</option>
+                                <option value="PC" {{ old('device_type') === 'PC' ? 'selected' : '' }}>PC</option>
                             </select>
 
                             @error('device_type')

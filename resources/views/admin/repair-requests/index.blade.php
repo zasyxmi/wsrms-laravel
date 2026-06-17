@@ -38,8 +38,10 @@
                                     <th class="border px-4 py-2 text-left">Repair Code</th>
                                     <th class="border px-4 py-2 text-left">Customer</th>
                                     <th class="border px-4 py-2 text-left">Device</th>
+                                    <th class="border px-4 py-2 text-left">Device Type</th>
                                     <th class="border px-4 py-2 text-left">Problem</th>
                                     <th class="border px-4 py-2 text-left">Technician</th>
+                                    <th class="border px-4 py-2 text-left">Assignment</th>
                                     <th class="border px-4 py-2 text-left">Status</th>
                                     <th class="border px-4 py-2 text-left">Action</th>
                                 </tr>
@@ -62,11 +64,23 @@
                                         </td>
 
                                         <td class="border px-4 py-2">
+                                            {{ $repairRequest->device->device_type ?? '-' }}
+                                        </td>
+
+                                        <td class="border px-4 py-2">
                                             {{ \Illuminate\Support\Str::limit($repairRequest->issue_description, 50) }}
                                         </td>
 
                                         <td class="border px-4 py-2">
                                             {{ $repairRequest->technician?->user?->name ?? 'Not assigned yet' }}
+                                        </td>
+
+                                        <td class="border px-4 py-2">
+                                            @if ($repairRequest->technician)
+                                                Assigned
+                                            @else
+                                                Waiting for assignment
+                                            @endif
                                         </td>
 
                                         <td class="border px-4 py-2">
@@ -84,7 +98,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="border px-4 py-4 text-center text-gray-500">
+                                        <td colspan="9" class="border px-4 py-4 text-center text-gray-500">
                                             No repair requests found.
                                         </td>
                                     </tr>

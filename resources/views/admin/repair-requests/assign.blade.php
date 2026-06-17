@@ -39,6 +39,13 @@
                             </p>
                         </div>
 
+                        <div>
+                            <p class="text-sm text-gray-500">Device Type</p>
+                            <p class="font-medium">
+                                {{ $repairRequest->device->device_type ?? '-' }}
+                            </p>
+                        </div>
+
                         <div class="md:col-span-2">
                             <p class="text-sm text-gray-500">Problem Description</p>
                             <p class="font-medium">{{ $repairRequest->issue_description }}</p>
@@ -62,7 +69,7 @@
                                 <option value="">-- Select Technician --</option>
 
                                 @foreach ($technicians as $technician)
-                                    <option value="{{ $technician->id }}" {{ old('technician_id') == $technician->id ? 'selected' : '' }}>
+                                    <option value="{{ $technician->id }}" {{ old('technician_id', $repairRequest->technician_id) == $technician->id ? 'selected' : '' }}>
                                         {{ $technician->user->name }}
                                         — {{ $technician->specialization }}
                                         — {{ ucfirst($technician->availability_status) }}
