@@ -117,8 +117,8 @@ class TechnicianController extends Controller
     {
         if ($technician->repairRequests()->exists()) {
             return redirect()
-                ->route('admin.technicians.index')
-                ->with('error', 'This technician cannot be deleted because they already have assigned repair tasks.');
+                ->back()
+                ->with('error', 'This technician cannot be deleted because they still have assigned repair requests.');
         }
 
         DB::transaction(function () use ($technician): void {

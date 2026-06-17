@@ -101,22 +101,16 @@
                                                     Edit
                                                 </a>
 
-                                                @if ($technician->repair_requests_count === 0)
-                                                    <form method="POST"
-                                                        action="{{ route('admin.technicians.destroy', $technician) }}"
-                                                        onsubmit="return confirm('Are you sure you want to delete this technician?');">
-                                                        @csrf
-                                                        @method('DELETE')
+                                                <form method="POST"
+                                                    action="{{ route('admin.technicians.destroy', $technician) }}"
+                                                    onsubmit="return confirm('Are you sure you want to delete this technician?');">
+                                                    @csrf
+                                                    @method('DELETE')
 
-                                                        <button type="submit" class="text-red-600 hover:underline">
-                                                            Delete
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <span class="text-gray-400 text-xs">
-                                                        Cannot delete
-                                                    </span>
-                                                @endif
+                                                    <button type="submit" class="text-red-600 hover:underline">
+                                                        Delete
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>
