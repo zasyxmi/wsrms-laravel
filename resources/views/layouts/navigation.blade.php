@@ -3,7 +3,7 @@
 
     $unreadNotificationsCount = 0;
 
-    if ($user) {
+    if ($user && $user->role !== 'admin') {
         $unreadNotificationsCount = \App\Models\SystemNotification::query()
             ->where('user_id', $user->id)
             ->whereNull('read_at')
@@ -59,7 +59,7 @@
                 Dashboard
             </a>
 
-            @if (Route::has('notifications.index'))
+            @if ($user->role !== 'admin' && Route::has('notifications.index'))
                 <a href="{{ route('notifications.index') }}"
                    class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('notifications.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
                     Notifications
@@ -75,8 +75,14 @@
             @if ($user->role === 'admin')
                 @if (Route::has('admin.repair-requests.index'))
                     <a href="{{ route('admin.repair-requests.index') }}"
-                       class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.repair-requests.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
-                        Repair Requests
+                       class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.repair-requests.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
+                        <span>Repair Requests</span>
+
+                        @if (($adminRepairRequestsBadgeCount ?? 0) > 0)
+                            <span class="min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                {{ $adminRepairRequestsBadgeCount }}
+                            </span>
+                        @endif
                     </a>
                 @endif
 
@@ -103,22 +109,40 @@
 
                 @if (Route::has('admin.spare-parts.index'))
                     <a href="{{ route('admin.spare-parts.index') }}"
-                       class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.spare-parts.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
-                        Spare Parts
+                       class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.spare-parts.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
+                        <span>Spare Parts</span>
+
+                        @if (($adminSparePartsBadgeCount ?? 0) > 0)
+                            <span class="min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                {{ $adminSparePartsBadgeCount }}
+                            </span>
+                        @endif
                     </a>
                 @endif
 
                 @if (Route::has('admin.invoices.index'))
                     <a href="{{ route('admin.invoices.index') }}"
-                       class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.invoices.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
-                        Invoices
+                       class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.invoices.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
+                        <span>Invoices</span>
+
+                        @if (($adminInvoicesBadgeCount ?? 0) > 0)
+                            <span class="min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                {{ $adminInvoicesBadgeCount }}
+                            </span>
+                        @endif
                     </a>
                 @endif
 
                 @if (Route::has('admin.payments.index'))
                     <a href="{{ route('admin.payments.index') }}"
-                       class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.payments.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
-                        Payments
+                       class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('admin.payments.*') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
+                        <span>Payments</span>
+
+                        @if (($adminPaymentsBadgeCount ?? 0) > 0)
+                            <span class="min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                {{ $adminPaymentsBadgeCount }}
+                            </span>
+                        @endif
                     </a>
                 @endif
 
@@ -219,7 +243,7 @@
                     <span>Dashboard</span>
                 </a>
 
-                @if (Route::has('notifications.index'))
+                @if ($user->role !== 'admin' && Route::has('notifications.index'))
                     <a href="{{ route('notifications.index') }}"
                        class="relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition {{ request()->routeIs('notifications.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                         <span class="text-lg">🔔</span>
@@ -239,6 +263,12 @@
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition {{ request()->routeIs('admin.repair-requests.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                             <span class="text-lg">🧾</span>
                             <span>Repair Requests</span>
+
+                            @if (($adminRepairRequestsBadgeCount ?? 0) > 0)
+                                <span class="ml-auto min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                    {{ $adminRepairRequestsBadgeCount }}
+                                </span>
+                            @endif
                         </a>
                     @endif
 
@@ -271,6 +301,12 @@
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition {{ request()->routeIs('admin.spare-parts.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                             <span class="text-lg">📦</span>
                             <span>Spare Parts</span>
+
+                            @if (($adminSparePartsBadgeCount ?? 0) > 0)
+                                <span class="ml-auto min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                    {{ $adminSparePartsBadgeCount }}
+                                </span>
+                            @endif
                         </a>
                     @endif
 
@@ -279,6 +315,12 @@
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition {{ request()->routeIs('admin.invoices.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                             <span class="text-lg">📄</span>
                             <span>Invoices</span>
+
+                            @if (($adminInvoicesBadgeCount ?? 0) > 0)
+                                <span class="ml-auto min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                    {{ $adminInvoicesBadgeCount }}
+                                </span>
+                            @endif
                         </a>
                     @endif
 
@@ -287,6 +329,12 @@
                            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition {{ request()->routeIs('admin.payments.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                             <span class="text-lg">💳</span>
                             <span>Payments</span>
+
+                            @if (($adminPaymentsBadgeCount ?? 0) > 0)
+                                <span class="ml-auto min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">
+                                    {{ $adminPaymentsBadgeCount }}
+                                </span>
+                            @endif
                         </a>
                     @endif
 
