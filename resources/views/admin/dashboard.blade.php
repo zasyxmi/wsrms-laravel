@@ -5,517 +5,277 @@
                 Admin Dashboard
             </h2>
             <p class="text-sm text-slate-500">
-                Monitor repair requests, customers, technicians, invoices, payments, spare parts, and reports.
+                A focused view of repair operations, billing, stock alerts, and recent workshop activity.
             </p>
         </div>
     </x-slot>
 
-    <div class="py-8 ws-dashboard">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+    @php
+        $readyForInvoiceCount = \App\Models\RepairRequest::query()
+            ->where('status', 'completed')
+            ->doesntHave('invoice')
+            ->count();
+
+        $quickActions = [
+            [
+                'title' => 'Repair Requests',
+                'description' => 'Review new jobs and assignments.',
+                'route' => route('admin.repair-requests.index'),
+                'icon' => '🧾',
+                'badge' => \App\Models\RepairRequest::where('status', 'submitted')->count(),
+            ],
+            [
+                'title' => 'Invoices',
+                'description' => 'Generate invoices for completed repairs.',
+                'route' => route('admin.invoices.index'),
+                'icon' => '📄',
+                'badge' => $readyForInvoiceCount,
+            ],
+            [
+                'title' => 'Payments',
+                'description' => 'Monitor unpaid invoices and receipts.',
+                'route' => route('admin.payments.index'),
+                'icon' => '💳',
+                'badge' => $summary['unpaid_invoices'],
+            ],
+            [
+                'title' => 'Reports',
+                'description' => 'Review performance and workshop trends.',
+                'route' => route('admin.reports.index'),
+                'icon' => '📊',
+                'badge' => 0,
+            ],
+        ];
+
+        $metrics = [
+            [
+                'label' => 'Pending Repairs',
+                'value' => $summary['pending_repairs'],
+                'description' => 'Requests currently in progress',
+                'icon' => '⏳',
+                'tone' => 'text-orange-600 bg-orange-50',
+            ],
+            [
+                'label' => 'Ready for Invoice',
+                'value' => $readyForInvoiceCount,
+                'description' => 'Completed jobs without invoice',
+                'icon' => '🧾',
+                'tone' => 'text-indigo-600 bg-indigo-50',
+            ],
+            [
+                'label' => 'Unpaid Invoices',
+                'value' => $summary['unpaid_invoices'],
+                'description' => 'Waiting for customer payment',
+                'icon' => '📄',
+                'tone' => 'text-red-600 bg-red-50',
+            ],
+            [
+                'label' => 'Payments Received',
+                'value' => 'RM ' . number_format($summary['total_payments'], 2),
+                'description' => 'Total successful payments',
+                'icon' => '💰',
+                'tone' => 'text-emerald-600 bg-emerald-50',
+            ],
+            [
+                'label' => 'Low Stock Parts',
+                'value' => $summary['low_stock_parts'],
+                'description' => 'Parts at or below threshold',
+                'icon' => '⚠️',
+                'tone' => 'text-amber-600 bg-amber-50',
+            ],
+            [
+                'label' => 'Completed Repairs',
+                'value' => $summary['completed_repairs'],
+                'description' => 'Jobs marked completed',
+                'icon' => '✅',
+                'tone' => 'text-green-600 bg-green-50',
+            ],
+        ];
+    @endphp
+
+    <div class="py-6 bg-slate-50 ws-dashboard">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-7">
 
             @if (session('success'))
                 <div class="ws-card p-4 border-l-4 border-green-500 bg-green-50">
-                    <p class="text-green-700 font-semibold">
-                        {{ session('success') }}
-                    </p>
+                    <p class="text-green-700 font-semibold">{{ session('success') }}</p>
                 </div>
             @endif
 
             @if (session('error'))
                 <div class="ws-card p-4 border-l-4 border-red-500 bg-red-50">
-                    <p class="text-red-700 font-semibold">
-                        {{ session('error') }}
-                    </p>
+                    <p class="text-red-700 font-semibold">{{ session('error') }}</p>
                 </div>
             @endif
 
-            {{-- Hero Section --}}
-            <div class="ws-card overflow-hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-3">
-                    <div class="lg:col-span-2 p-8">
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-extrabold mb-4">
+            {{-- Header --}}
+            <section class="ws-card p-6">
+                <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-extrabold">
                             <span>🛠️</span>
-                            Workshop Control Center
+                            Workshop Control
                         </div>
 
-                        <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight">
-                            Welcome back, Admin
+                        <h3 class="mt-3 text-2xl font-extrabold text-slate-900 tracking-tight">
+                            Admin Dashboard
                         </h3>
 
-                        <p class="mt-3 text-slate-600 max-w-3xl leading-relaxed">
-                            Manage the full repair workflow from customer request submission, technician assignment,
-                            diagnosis, spare part usage, invoice generation, payment tracking, receipt download,
-                            pickup notification, and management reports.
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                            Track the work that needs attention today: new repair requests, invoice readiness,
+                            payment follow-up, stock alerts, and recent workshop activity.
                         </p>
-
-                        <div class="mt-6 flex flex-wrap gap-3">
-                            <a href="{{ route('admin.repair-requests.index') }}" class="ws-btn-primary !w-auto">
-                                Manage Repair Requests
-                            </a>
-
-                            <a href="{{ route('admin.reports.index') }}" class="ws-btn-secondary !w-auto">
-                                View Reports
-                            </a>
-
-                            <a href="{{ route('admin.payments.index') }}" class="ws-btn-secondary !w-auto">
-                                View Payments
-                            </a>
-                        </div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-blue-600 to-sky-400 p-8 text-white flex flex-col justify-center">
-                        <p class="text-sm font-bold text-blue-100">
-                            Supported Repair Services
-                        </p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="{{ route('admin.repair-requests.index') }}" class="ws-btn-primary !w-auto">
+                            Manage Repair Requests
+                        </a>
 
-                        <div class="mt-5 space-y-4">
-                            <div class="flex items-center gap-4 bg-white/15 rounded-2xl p-4 backdrop-blur">
-                                <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
-                                    💻
+                        <a href="{{ route('admin.reports.index') }}" class="ws-btn-secondary !w-auto">
+                            View Reports
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            {{-- Quick Actions --}}
+            <section class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Quick Actions</h3>
+                    <p class="text-sm text-slate-500">Open the main admin workflows that usually need attention.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                    @foreach ($quickActions as $action)
+                        <a href="{{ $action['route'] }}" class="ws-card p-4 hover:-translate-y-0.5 transition duration-200 group">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl">
+                                        {{ $action['icon'] }}
+                                    </div>
+
+                                    <div>
+                                        <h4 class="font-extrabold text-slate-900">{{ $action['title'] }}</h4>
+                                        <p class="mt-0.5 text-xs text-slate-500">{{ $action['description'] }}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="font-extrabold">PC Repair</p>
-                                    <p class="text-sm text-blue-100">Hardware, software, and diagnostics.</p>
+
+                                @if ($action['badge'] > 0)
+                                    <span class="min-w-6 h-6 px-2 rounded-full bg-red-600 text-white text-xs flex items-center justify-center font-extrabold">
+                                        {{ $action['badge'] }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="mt-3 text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
+                                Open →
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+
+            {{-- Operational Summary --}}
+            <section class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Operational Summary</h3>
+                    <p class="text-sm text-slate-500">The six most important workshop health indicators.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                    @foreach ($metrics as $metric)
+                        <div class="ws-card p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-xs font-extrabold uppercase text-slate-500">{{ $metric['label'] }}</p>
+                                <div class="w-9 h-9 rounded-xl {{ $metric['tone'] }} flex items-center justify-center">
+                                    {{ $metric['icon'] }}
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-4 bg-white/15 rounded-2xl p-4 backdrop-blur">
-                                <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
-                                    🖥️
-                                </div>
-                                <div>
-                                    <p class="font-extrabold">Laptop Repair</p>
-                                    <p class="text-sm text-blue-100">Screen, battery, keyboard, and storage.</p>
-                                </div>
-                            </div>
+                            <p class="mt-3 text-2xl font-extrabold text-slate-900 break-words">
+                                {{ $metric['value'] }}
+                            </p>
 
-                            <div class="flex items-center gap-4 bg-white/15 rounded-2xl p-4 backdrop-blur">
-                                <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl">
-                                    📱
-                                </div>
-                                <div>
-                                    <p class="font-extrabold">Handphone Repair</p>
-                                    <p class="text-sm text-blue-100">Screen, charging, battery, and more.</p>
-                                </div>
-                            </div>
+                            <p class="mt-1 text-xs text-slate-500">
+                                {{ $metric['description'] }}
+                            </p>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
-            </div>
-
-            {{-- Quick Management Cards --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <a href="{{ route('admin.repair-requests.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl">
-                            🧾
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Repair Requests
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        Approve, reject, and assign repair jobs.
-                    </p>
-                </a>
-
-                <a href="{{ route('admin.customers.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-green-100 text-green-700 flex items-center justify-center text-2xl">
-                            👥
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Customers
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        View customer records and repair history.
-                    </p>
-                </a>
-
-                <a href="{{ route('admin.technicians.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl">
-                            🛠️
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Technicians
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        Manage technician accounts and availability.
-                    </p>
-                </a>
-
-                <a href="{{ route('admin.spare-parts.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl">
-                            📦
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Spare Parts
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        Track stock, price, and low inventory items.
-                    </p>
-                </a>
-
-                <a href="{{ route('admin.devices.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-2xl">
-                            💻
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Devices
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        View registered PC, laptop, and phone devices.
-                    </p>
-                </a>
-
-                <a href="{{ route('admin.invoices.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-2xl">
-                            📄
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Invoices
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        Manage invoice records and payment status.
-                    </p>
-                </a>
-
-                <a href="{{ route('admin.payments.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">
-                            💳
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Payments
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        Monitor paid invoices and receipt records.
-                    </p>
-                </a>
-
-                <a href="{{ route('admin.reports.index') }}"
-                    class="ws-card p-5 hover:-translate-y-1 transition duration-200 group">
-                    <div class="flex items-center justify-between">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center text-2xl">
-                            📊
-                        </div>
-                        <span class="text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition">
-                            Open →
-                        </span>
-                    </div>
-                    <h4 class="mt-4 font-extrabold text-slate-900">
-                        Reports
-                    </h4>
-                    <p class="mt-1 text-sm text-slate-500">
-                        View repair, payment, and stock summaries.
-                    </p>
-                </a>
-            </div>
-
-            {{-- Summary Cards --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Total Customers</p>
-                        <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center">
-                            👥
-                        </div>
-                    </div>
-                    <p class="mt-4 text-4xl font-extrabold text-slate-900">
-                        {{ $summary['total_customers'] }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Registered customer accounts
-                    </p>
-                </div>
-
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Total Technicians</p>
-                        <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center">
-                            🛠️
-                        </div>
-                    </div>
-                    <p class="mt-4 text-4xl font-extrabold text-slate-900">
-                        {{ $summary['total_technicians'] }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Active technician profiles
-                    </p>
-                </div>
-
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Total Devices</p>
-                        <div class="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
-                            💻
-                        </div>
-                    </div>
-                    <p class="mt-4 text-4xl font-extrabold text-slate-900">
-                        {{ $summary['total_devices'] }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Customer registered devices
-                    </p>
-                </div>
-
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Pending Repairs</p>
-                        <div
-                            class="w-10 h-10 rounded-2xl bg-orange-50 text-orange-700 flex items-center justify-center">
-                            ⏳
-                        </div>
-                    </div>
-                    <p class="mt-4 text-4xl font-extrabold text-orange-600">
-                        {{ $summary['pending_repairs'] }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Requests still in progress
-                    </p>
-                </div>
-
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Completed Repairs</p>
-                        <div class="w-10 h-10 rounded-2xl bg-green-50 text-green-700 flex items-center justify-center">
-                            ✅
-                        </div>
-                    </div>
-                    <p class="mt-4 text-4xl font-extrabold text-green-600">
-                        {{ $summary['completed_repairs'] }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Successfully completed repair jobs
-                    </p>
-                </div>
-
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Unpaid Invoices</p>
-                        <div class="w-10 h-10 rounded-2xl bg-red-50 text-red-700 flex items-center justify-center">
-                            📄
-                        </div>
-                    </div>
-                    <p class="mt-4 text-4xl font-extrabold text-red-600">
-                        {{ $summary['unpaid_invoices'] }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Waiting for customer payment
-                    </p>
-                </div>
-
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Payments Received</p>
-                        <div
-                            class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center">
-                            💰
-                        </div>
-                    </div>
-                    <p class="mt-4 text-3xl font-extrabold text-purple-600">
-                        RM {{ number_format($summary['total_payments'], 2) }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Total successful payments
-                    </p>
-                </div>
-
-                <div class="ws-card p-6">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-500">Low Stock Parts</p>
-                        <div
-                            class="w-10 h-10 rounded-2xl bg-yellow-50 text-yellow-700 flex items-center justify-center">
-                            ⚠️
-                        </div>
-                    </div>
-                    <p class="mt-4 text-4xl font-extrabold text-amber-600">
-                        {{ $summary['low_stock_parts'] }}
-                    </p>
-                    <p class="mt-1 text-xs font-semibold text-slate-400">
-                        Spare parts need attention
-                    </p>
-                </div>
-            </div>
+            </section>
 
             {{-- Sales Analytics --}}
-            <div class="space-y-5">
+            <section class="space-y-4">
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <h3 class="text-2xl font-extrabold text-slate-900">
-                            Sales Analytics
-                        </h3>
-                        <p class="text-sm text-slate-500">
-                            Monthly paid payment performance for the current year.
-                        </p>
+                        <h3 class="text-lg font-extrabold text-slate-900">Sales Analytics</h3>
+                        <p class="text-sm text-slate-500">Monthly paid payment performance for the current year.</p>
                     </div>
 
-                    <span class="inline-flex w-fit rounded-full bg-slate-900 px-4 py-2 text-xs font-extrabold text-white">
+                    <span class="inline-flex w-fit rounded-full bg-slate-900 px-3 py-1.5 text-xs font-extrabold text-white">
                         {{ $salesAnalytics['unpaid_invoices'] }} unpaid invoices
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-                    <div class="ws-card p-6 border border-blue-100">
-                        <p class="text-sm font-bold text-slate-500">
-                            Total Sales This Month
-                        </p>
-                        <p class="mt-4 text-3xl font-extrabold text-blue-600">
-                            RM {{ number_format($salesAnalytics['sales_this_month'], 2) }}
-                        </p>
-                        <p class="mt-1 text-xs font-semibold text-slate-400">
-                            Paid payments received this month
-                        </p>
-                    </div>
-
-                    <div class="ws-card p-6 border border-sky-100">
-                        <p class="text-sm font-bold text-slate-500">
-                            Total Sales This Year
-                        </p>
-                        <p class="mt-4 text-3xl font-extrabold text-sky-600">
-                            RM {{ number_format($salesAnalytics['sales_this_year'], 2) }}
-                        </p>
-                        <p class="mt-1 text-xs font-semibold text-slate-400">
-                            Paid payments received this year
-                        </p>
-                    </div>
-
-                    <div class="ws-card p-6 border border-green-100">
-                        <p class="text-sm font-bold text-slate-500">
-                            Completed Repairs This Month
-                        </p>
-                        <p class="mt-4 text-4xl font-extrabold text-green-600">
-                            {{ $salesAnalytics['completed_repairs_this_month'] }}
-                        </p>
-                        <p class="mt-1 text-xs font-semibold text-slate-400">
-                            Jobs marked completed this month
-                        </p>
-                    </div>
-
-                    <div class="ws-card p-6 border border-emerald-100">
-                        <p class="text-sm font-bold text-slate-500">
-                            Paid Invoices This Month
-                        </p>
-                        <p class="mt-4 text-4xl font-extrabold text-emerald-600">
-                            {{ $salesAnalytics['paid_invoices_this_month'] }}
-                        </p>
-                        <p class="mt-1 text-xs font-semibold text-slate-400">
-                            Invoices paid during this month
-                        </p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                    <div class="ws-card overflow-hidden border border-slate-300">
-                        <div class="px-6 py-4 bg-slate-900 text-white">
-                            <h4 class="text-lg font-extrabold">
-                                Monthly Sales Chart
-                            </h4>
-                            <p class="mt-1 text-sm text-slate-300">
-                                Paid payment value by month.
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div class="ws-card p-5">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h4 class="font-extrabold text-slate-900">Monthly Sales</h4>
+                                <p class="text-xs text-slate-500">Paid payment value by month.</p>
+                            </div>
+                            <p class="text-sm font-extrabold text-blue-600">
+                                RM {{ number_format($salesAnalytics['sales_this_year'], 2) }}
                             </p>
                         </div>
-                        <div class="p-6 bg-white">
-                            <div class="h-80">
-                                <canvas id="monthlySalesChart"></canvas>
-                            </div>
+
+                        <div class="mt-4 h-64">
+                            <canvas id="monthlySalesChart"></canvas>
                         </div>
                     </div>
 
-                    <div class="ws-card overflow-hidden border border-slate-300">
-                        <div class="px-6 py-4 bg-slate-900 text-white">
-                            <h4 class="text-lg font-extrabold">
-                                Monthly Payment Count Chart
-                            </h4>
-                            <p class="mt-1 text-sm text-slate-300">
-                                Number of successful payments by month.
+                    <div class="ws-card p-5">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h4 class="font-extrabold text-slate-900">Monthly Payment Count</h4>
+                                <p class="text-xs text-slate-500">Successful payments by month.</p>
+                            </div>
+                            <p class="text-sm font-extrabold text-green-600">
+                                {{ $salesAnalytics['paid_invoices_this_month'] }} paid this month
                             </p>
                         </div>
-                        <div class="p-6 bg-white">
-                            <div class="h-80">
-                                <canvas id="monthlyPaymentsChart"></canvas>
-                            </div>
+
+                        <div class="mt-4 h-64">
+                            <canvas id="monthlyPaymentsChart"></canvas>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             {{-- Recent Repair Requests --}}
-            <div class="ws-card overflow-hidden border border-slate-300">
-                <div
-                    class="px-6 py-5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <section class="ws-card overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <h3 class="text-xl font-extrabold">
-                            Recent Repair Requests
-                        </h3>
-                        <p class="text-sm text-slate-300 mt-1">
-                            Latest repair jobs submitted by customers.
-                        </p>
+                        <h3 class="text-lg font-extrabold text-slate-900">Recent Repair Requests</h3>
+                        <p class="text-sm text-slate-500">Latest repair jobs submitted by customers.</p>
                     </div>
 
-                    <a href="{{ route('admin.repair-requests.index') }}"
-                        class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white text-slate-900 text-sm font-extrabold hover:bg-blue-50">
+                    <a href="{{ route('admin.repair-requests.index') }}" class="ws-btn-secondary !w-auto !py-2">
                         View All Requests
                     </a>
                 </div>
 
                 <div class="overflow-x-auto bg-white">
                     <table class="min-w-full text-sm">
-                        <thead class="bg-slate-800 text-white">
+                        <thead class="bg-slate-100 text-slate-600">
                             <tr>
-                                <th class="px-5 py-4 text-left font-extrabold">Repair Code</th>
-                                <th class="px-5 py-4 text-left font-extrabold">Customer</th>
-                                <th class="px-5 py-4 text-left font-extrabold">Device</th>
-                                <th class="px-5 py-4 text-left font-extrabold">Technician</th>
-                                <th class="px-5 py-4 text-left font-extrabold">Status</th>
-                                <th class="px-5 py-4 text-left font-extrabold">Action</th>
+                                <th class="px-5 py-3 text-left font-extrabold">Reference</th>
+                                <th class="px-5 py-3 text-left font-extrabold">Customer</th>
+                                <th class="px-5 py-3 text-left font-extrabold">Device</th>
+                                <th class="px-5 py-3 text-left font-extrabold">Status</th>
+                                <th class="px-5 py-3 text-left font-extrabold">Submitted</th>
+                                <th class="px-5 py-3 text-left font-extrabold">Action</th>
                             </tr>
                         </thead>
 
@@ -527,60 +287,33 @@
                                     </td>
 
                                     <td class="px-5 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-extrabold">
-                                                {{ strtoupper(substr($repairRequest->customer?->user?->name ?? 'C', 0, 1)) }}
-                                            </div>
-
-                                            <div>
-                                                <p class="font-extrabold text-slate-900">
-                                                    {{ $repairRequest->customer?->user?->name ?? '-' }}
-                                                </p>
-                                                <p class="text-xs font-semibold text-slate-400">
-                                                    Customer
-                                                </p>
-                                            </div>
-                                        </div>
+                                        {{ $repairRequest->customer?->user?->name ?? '-' }}
                                     </td>
 
                                     <td class="px-5 py-4">
-                                        <p class="font-extrabold text-slate-900">
+                                        <p class="font-semibold text-slate-900">
                                             {{ $repairRequest->device?->brand ?? '-' }}
                                             {{ $repairRequest->device?->model ?? '' }}
                                         </p>
-                                        <p class="text-xs font-semibold text-slate-400">
+                                        <p class="text-xs text-slate-500">
                                             {{ $repairRequest->device?->device_type ?? 'Device' }}
                                         </p>
                                     </td>
 
                                     <td class="px-5 py-4">
-                                        @if ($repairRequest->technician)
-                                            <p class="font-extrabold text-slate-900">
-                                                {{ $repairRequest->technician?->user?->name }}
-                                            </p>
-                                            <p class="text-xs font-semibold text-slate-400">
-                                                Technician
-                                            </p>
-                                        @else
-                                            <span
-                                                class="inline-flex px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-extrabold">
-                                                Not Assigned
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td class="px-5 py-4">
-                                        <span
-                                            class="ws-badge ws-status-{{ str_replace('_', '-', $repairRequest->status) }}">
+                                        <span class="ws-badge ws-status-{{ str_replace('_', '-', $repairRequest->status) }}">
                                             {{ ucwords(str_replace('_', ' ', $repairRequest->status)) }}
                                         </span>
                                     </td>
 
                                     <td class="px-5 py-4 whitespace-nowrap">
+                                        {{ $repairRequest->request_date ? $repairRequest->request_date->format('d M Y') : '-' }}
+                                    </td>
+
+                                    <td class="px-5 py-4 whitespace-nowrap">
                                         <a href="{{ route('admin.repair-requests.show', $repairRequest) }}"
                                             class="inline-flex items-center px-3 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-extrabold hover:bg-blue-600 hover:text-white transition">
-                                            View Details
+                                            View
                                         </a>
                                     </td>
                                 </tr>
@@ -594,7 +327,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
         </div>
     </div>
