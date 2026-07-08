@@ -111,6 +111,7 @@ class DashboardController extends Controller
                         'paid_invoices' => 0,
                     ],
                     'latestRepairRequests' => collect(),
+                    'currentRepairRequest' => null,
                 ]);
             }
 
@@ -144,7 +145,14 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get();
 
-            return view('customer.dashboard', compact('summary', 'latestRepairRequests'));
+            $currentRepairRequest = RepairRequest::query()
+                ->with(['device', 'technician.user', 'invoice.payment'])
+                ->where('customer_id', $customer->id)
+                ->whereNotIn('status', ['rejected', 'unable_to_repair'])
+                ->latest()
+                ->first();
+
+            return view('customer.dashboard', compact('summary', 'latestRepairRequests', 'currentRepairRequest'));
         }
 
         if ($user->role === 'technician') {
