@@ -56,7 +56,7 @@
             @endif
 
             {{-- Compact Welcome Header --}}
-            <section class="ws-card p-6">
+            <section class="ws-card p-6" data-gsap="hero">
                 <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                     <div class="max-w-3xl">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-extrabold">
@@ -86,13 +86,13 @@
             </section>
 
             {{-- Current Repair / Next Action --}}
-            <section class="space-y-4">
+            <section class="space-y-4" data-gsap="fade-up">
                 <div>
                     <h3 class="text-lg font-extrabold text-slate-900">Current Repair / Next Action</h3>
                     <p class="text-sm text-slate-500">The latest repair item that may need your attention.</p>
                 </div>
 
-                <div class="ws-card p-5">
+                <div class="ws-card p-5" data-gsap="scale-in">
                     @if ($currentRepairRequest)
                         @php
                             $invoice = $currentRepairRequest->invoice;
@@ -197,7 +197,7 @@
             </section>
 
             {{-- Latest Repair Requests --}}
-            <section class="ws-card overflow-hidden">
+            <section class="ws-card overflow-hidden" data-gsap="fade-up">
                 <div class="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900">Latest Repair Requests</h3>
@@ -285,15 +285,15 @@
             </section>
 
             {{-- Account Summary --}}
-            <section class="space-y-4">
+            <section class="space-y-4" data-gsap="fade-up">
                 <div>
                     <h3 class="text-lg font-extrabold text-slate-900">Account Summary</h3>
                     <p class="text-sm text-slate-500">A compact snapshot of your repair and invoice history.</p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" data-gsap-stagger>
                     @foreach ($summaryCards as $card)
-                        <div class="ws-card p-4">
+                        <div class="ws-card p-4" data-gsap-item>
                             <div class="flex items-center justify-between gap-3">
                                 <div>
                                     <p class="text-2xl font-extrabold text-slate-900">{{ $card['value'] }}</p>
@@ -310,7 +310,7 @@
             </section>
 
             {{-- Need Help --}}
-            <section class="ws-card p-5">
+            <section class="ws-card p-5" data-gsap="fade-up">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <h3 class="text-lg font-extrabold text-slate-900">Need Help?</h3>

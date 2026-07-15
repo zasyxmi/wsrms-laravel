@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-10">
+    <div class="py-10" data-gsap="fade-up">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             @if (session('success'))
@@ -44,43 +44,43 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6" data-gsap-stagger>
+                <div class="bg-white p-6 rounded-lg shadow-sm ws-hover-lift" data-gsap-item>
                     <p class="text-sm text-gray-500">Total Assigned Tasks</p>
                     <p class="text-3xl font-bold text-gray-900 mt-2">
                         {{ $summary['total_assigned_tasks'] }}
                     </p>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="bg-white p-6 rounded-lg shadow-sm ws-hover-lift" data-gsap-item>
                     <p class="text-sm text-gray-500">New Assigned Tasks</p>
                     <p class="text-3xl font-bold text-blue-600 mt-2">
                         {{ $summary['new_assigned_tasks'] }}
                     </p>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="bg-white p-6 rounded-lg shadow-sm ws-hover-lift" data-gsap-item>
                     <p class="text-sm text-gray-500">Under Diagnosis</p>
                     <p class="text-3xl font-bold text-orange-600 mt-2">
                         {{ $summary['under_diagnosis_tasks'] }}
                     </p>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="bg-white p-6 rounded-lg shadow-sm ws-hover-lift" data-gsap-item>
                     <p class="text-sm text-gray-500">In Repair</p>
                     <p class="text-3xl font-bold text-indigo-600 mt-2">
                         {{ $summary['in_repair_tasks'] }}
                     </p>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="bg-white p-6 rounded-lg shadow-sm ws-hover-lift" data-gsap-item>
                     <p class="text-sm text-gray-500">Waiting for Parts</p>
                     <p class="text-3xl font-bold text-yellow-600 mt-2">
                         {{ $summary['waiting_for_parts_tasks'] }}
                     </p>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="bg-white p-6 rounded-lg shadow-sm ws-hover-lift" data-gsap-item>
                     <p class="text-sm text-gray-500">Completed Tasks</p>
                     <p class="text-3xl font-bold text-green-600 mt-2">
                         {{ $summary['completed_tasks'] }}
@@ -88,7 +88,7 @@
                 </div>
             </div>
 
-            <div class="bg-white shadow-sm sm:rounded-lg">
+            <div class="bg-white shadow-sm sm:rounded-lg" data-gsap="fade-up">
                 <div class="p-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">
                         Latest Assigned Tasks

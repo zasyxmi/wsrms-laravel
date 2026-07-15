@@ -11,7 +11,7 @@
     }
 @endphp
 
-<nav x-data="{ open: false }">
+<nav x-data="{ open: false }" @keydown.escape.window="open = false">
     {{-- Mobile Top Navigation --}}
     <div class="lg:hidden bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
         <div class="px-4 h-16 flex items-center justify-between">
@@ -31,7 +31,9 @@
             </a>
 
             <button @click="open = ! open"
-                    class="p-2 rounded-xl text-slate-600 hover:bg-slate-100">
+                    :aria-expanded="open.toString()"
+                    aria-controls="mobile-sidebar-menu"
+                    class="p-2 rounded-xl text-slate-600 hover:bg-slate-100 ws-transition ws-focus-ring">
                 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     <path :class="{ 'hidden': open, 'inline-flex': !open }"
                           class="inline-flex"
@@ -51,8 +53,12 @@
         </div>
 
         {{-- Mobile Dropdown Menu --}}
-        <div :class="{ 'block': open, 'hidden': !open }"
-             class="hidden border-t border-slate-200 bg-white px-4 py-4 space-y-2">
+        <div x-cloak
+             x-show="open"
+             x-transition.opacity
+             @click.outside="open = false"
+             id="mobile-sidebar-menu"
+             class="border-t border-slate-200 bg-white px-4 py-4 space-y-2">
 
             <a href="{{ route('dashboard') }}"
                class="block px-4 py-3 rounded-xl text-sm font-bold {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50' }}">

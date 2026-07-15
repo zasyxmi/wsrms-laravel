@@ -28,7 +28,7 @@
                     </header>
                 @endisset
 
-                <main>
+                <main data-gsap-page>
                     {{ $slot }}
                 </main>
             </div>

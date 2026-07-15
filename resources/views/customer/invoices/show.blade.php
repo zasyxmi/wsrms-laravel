@@ -210,22 +210,22 @@
                                 </p>
 
                                 <div class="flex flex-col sm:flex-row gap-3">
-                                    <form method="POST" action="{{ route('customer.invoices.pay', $invoice) }}"
-                                        onsubmit="return confirm('Proceed with payment simulation?');">
+                                    <form method="POST" action="{{ route('customer.invoices.pay', $invoice) }}" data-loading-form
+                                          onsubmit="return confirm('Proceed with payment simulation?');">
                                         @csrf
 
-                                        <button type="submit"
-                                            class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
-                                            Pay Simulation
+                                        <button type="submit" data-loading-button data-loading-text="Processing Payment..."
+                                                class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 ws-transition disabled:cursor-not-allowed disabled:opacity-70">
+                                            <span data-loading-label>Pay Simulation</span>
                                         </button>
                                     </form>
 
-                                    <form method="POST" action="{{ route('customer.toyyibpay.pay', $invoice) }}">
+                                    <form method="POST" action="{{ route('customer.toyyibpay.pay', $invoice) }}" data-loading-form>
                                         @csrf
 
-                                        <button type="submit"
-                                            class="px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">
-                                            Pay with ToyyibPay Sandbox
+                                        <button type="submit" data-loading-button data-loading-text="Redirecting to ToyyibPay..."
+                                                class="px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 ws-transition disabled:cursor-not-allowed disabled:opacity-70">
+                                            <span data-loading-label>Pay with ToyyibPay Sandbox</span>
                                         </button>
                                     </form>
                                 </div>
