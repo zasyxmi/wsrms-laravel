@@ -19,6 +19,20 @@ use App\Models\User;
 
 class RepairTaskController extends Controller
 {
+    /**
+     * Statuses at or beyond "Repair Completed" — the technician's part of the
+     * job is done and the task is closed from the technician's point of view.
+     */
+    private const CLOSED_FOR_TECHNICIAN_STATUSES = [
+        'repair_completed',
+        'waiting_payment',
+        'paid',
+        'ready_for_pickup',
+        'completed',
+        'unable_to_repair',
+        'rejected',
+    ];
+
     public function index(): View
     {
         $technician = Auth::user()->technician;
@@ -53,7 +67,7 @@ class RepairTaskController extends Controller
 
         abort_if($repairRequest->technician_id !== $technician->id, 403, 'Unauthorized access.');
 
-        if (in_array($repairRequest->status, ['completed', 'unable_to_repair'], true)) {
+        if (in_array($repairRequest->status, self::CLOSED_FOR_TECHNICIAN_STATUSES, true)) {
             return redirect()
                 ->route('technician.repair-tasks.show', $repairRequest)
                 ->with('error', 'Diagnosis cannot be updated because this repair task has already been closed.');
@@ -82,7 +96,7 @@ class RepairTaskController extends Controller
 
         abort_if($repairRequest->technician_id !== $technician->id, 403, 'Unauthorized access.');
 
-        if (in_array($repairRequest->status, ['completed', 'unable_to_repair'], true)) {
+        if (in_array($repairRequest->status, self::CLOSED_FOR_TECHNICIAN_STATUSES, true)) {
             return redirect()
                 ->route('technician.repair-tasks.show', $repairRequest)
                 ->with('error', 'Spare parts cannot be recorded because this repair task has already been closed.');
@@ -128,15 +142,18 @@ class RepairTaskController extends Controller
 
         abort_if($repairRequest->technician_id !== $technician->id, 403, 'Unauthorized access.');
 
-        if (in_array($repairRequest->status, ['completed', 'unable_to_repair', 'rejected'], true)) {
+        if (in_array($repairRequest->status, self::CLOSED_FOR_TECHNICIAN_STATUSES, true)) {
             return redirect()
                 ->route('technician.repair-tasks.show', $repairRequest)
                 ->with('error', 'This repair task cannot be marked as completed.');
         }
 
+        // NOTE: this is "Repair Completed" (the technician's work is done), NOT the
+        // final "Completed" status. The repair only reaches "Completed" after the
+        // admin generates the invoice, the customer pays, and the admin confirms
+        // the device has been collected. See confirmPickup() in Admin\RepairRequestController.
         $repairRequest->update([
-            'status' => 'completed',
-            'completed_date' => now()->toDateString(),
+            'status' => 'repair_completed',
         ]);
 
         SystemNotification::create([

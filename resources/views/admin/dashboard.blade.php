@@ -12,7 +12,7 @@
 
     @php
         $readyForInvoiceCount = \App\Models\RepairRequest::query()
-            ->where('status', 'completed')
+            ->where('status', 'repair_completed')
             ->doesntHave('invoice')
             ->count();
 
@@ -26,7 +26,7 @@
             ],
             [
                 'title' => 'Invoices',
-                'description' => 'Generate invoices for completed repairs.',
+                'description' => 'Generate invoices for repair-completed jobs.',
                 'route' => route('admin.invoices.index'),
                 'icon' => '📄',
                 'badge' => $readyForInvoiceCount,
@@ -60,7 +60,7 @@
                 'label' => 'Ready for Invoice',
                 'value' => $readyForInvoiceCount,
                 'counter' => $readyForInvoiceCount,
-                'description' => 'Completed jobs without invoice',
+                'description' => 'Repair-completed jobs without invoice',
                 'icon' => '🧾',
                 'tone' => 'text-indigo-600 bg-indigo-50',
             ],

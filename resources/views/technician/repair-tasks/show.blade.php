@@ -115,7 +115,7 @@
     </div>
 @endif
 
-@if (! in_array($repairRequest->status, ['completed', 'unable_to_repair'], true))
+@if (! in_array($repairRequest->status, ['repair_completed', 'waiting_payment', 'paid', 'ready_for_pickup', 'completed', 'unable_to_repair'], true))
     <div class="border-t pt-6">
         <h3 class="text-lg font-bold text-gray-900 mb-4">
             Update Diagnosis
@@ -278,7 +278,7 @@
         </table>
     </div>
 
-    @if (! in_array($repairRequest->status, ['completed', 'unable_to_repair'], true))
+    @if (! in_array($repairRequest->status, ['repair_completed', 'waiting_payment', 'paid', 'ready_for_pickup', 'completed', 'unable_to_repair'], true))
         <form method="POST"
               action="{{ route('technician.repair-tasks.store-spare-part', $repairRequest) }}"
               class="space-y-5">
@@ -339,7 +339,7 @@
     @endif
 </div>
 
-@if (! in_array($repairRequest->status, ['completed', 'unable_to_repair', 'rejected'], true))
+@if (! in_array($repairRequest->status, ['repair_completed', 'waiting_payment', 'paid', 'ready_for_pickup', 'completed', 'unable_to_repair', 'rejected'], true))
     <div class="border-t pt-6">
         <h3 class="text-lg font-bold text-gray-900 mb-3">
             Complete Repair Task
@@ -363,16 +363,22 @@
     </div>
 @endif
 
-@if ($repairRequest->status === 'completed')
+@if (in_array($repairRequest->status, ['repair_completed', 'waiting_payment', 'paid', 'ready_for_pickup', 'completed'], true))
     <div class="border-t pt-6">
-        <p class="text-green-700 font-semibold">
-            This repair task has been completed.
-        </p>
+        @if ($repairRequest->status === 'completed')
+            <p class="text-green-700 font-semibold">
+                This repair task has been completed.
+            </p>
 
-        <p class="text-gray-700 mt-1">
-            Completed Date:
-            {{ $repairRequest->completed_date ? $repairRequest->completed_date->format('d M Y') : '-' }}
-        </p>
+            <p class="text-gray-700 mt-1">
+                Completed Date:
+                {{ $repairRequest->completed_date ? $repairRequest->completed_date->format('d M Y') : '-' }}
+            </p>
+        @else
+            <p class="text-blue-700 font-semibold">
+                You have finished this repair. It's now waiting on admin (invoice, payment, and pickup) before it is fully closed.
+            </p>
+        @endif
     </div>
 @endif
 

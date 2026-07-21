@@ -80,6 +80,9 @@ Route::middleware(['auth', 'role:admin'])
         Route::patch('/repair-requests/{repairRequest}/assign', [AdminRepairRequestController::class, 'assign'])
             ->name('repair-requests.assign');
 
+        Route::patch('/repair-requests/{repairRequest}/confirm-pickup', [AdminRepairRequestController::class, 'confirmPickup'])
+            ->name('repair-requests.confirm-pickup');
+
         Route::get('/invoices', [AdminInvoiceController::class, 'index'])
             ->name('invoices.index');
 

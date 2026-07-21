@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
                         ->where('status', 'submitted')
                         ->count(),
                     'adminInvoicesBadgeCount' => RepairRequest::query()
-                        ->where('status', 'completed')
+                        ->where('status', 'repair_completed')
                         ->doesntHave('invoice')
                         ->count(),
                     'adminPaymentsBadgeCount' => Invoice::query()

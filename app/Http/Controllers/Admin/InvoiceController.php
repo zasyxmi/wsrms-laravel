@@ -15,6 +15,17 @@ class InvoiceController extends Controller
 {
     public function index(): View
     {
+        $pendingInvoiceRepairRequests = RepairRequest::query()
+            ->with([
+                'customer.user',
+                'device',
+                'technician.user',
+            ])
+            ->where('status', 'repair_completed')
+            ->whereDoesntHave('invoice')
+            ->latest()
+            ->get();
+
         $invoices = Invoice::query()
             ->with([
                 'customer.user',
@@ -24,7 +35,7 @@ class InvoiceController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.invoices.index', compact('invoices'));
+        return view('admin.invoices.index', compact('pendingInvoiceRepairRequests', 'invoices'));
     }
 
     public function show(Invoice $invoice): View
@@ -50,10 +61,10 @@ class InvoiceController extends Controller
             'invoice',
         ]);
 
-        if ($repairRequest->status !== 'completed') {
+        if ($repairRequest->status !== 'repair_completed') {
             return redirect()
                 ->route('admin.repair-requests.show', $repairRequest)
-                ->with('error', 'Invoice can only be generated after the repair is completed.');
+                ->with('error', 'Invoice can only be generated after the technician has completed the repair.');
         }
 
         if ($repairRequest->invoice) {
@@ -75,10 +86,10 @@ class InvoiceController extends Controller
             'invoice',
         ]);
 
-        if ($repairRequest->status !== 'completed') {
+        if ($repairRequest->status !== 'repair_completed') {
             return redirect()
                 ->route('admin.repair-requests.show', $repairRequest)
-                ->with('error', 'Invoice can only be generated after the repair is completed.');
+                ->with('error', 'Invoice can only be generated after the technician has completed the repair.');
         }
 
         if ($repairRequest->invoice) {
@@ -107,6 +118,10 @@ class InvoiceController extends Controller
                 'total_amount' => $totalAmount,
                 'status' => 'unpaid',
                 'generated_at' => now(),
+            ]);
+
+            $repairRequest->update([
+                'status' => 'waiting_payment',
             ]);
 
             SystemNotification::create([

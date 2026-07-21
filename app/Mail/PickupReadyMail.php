@@ -16,10 +16,10 @@ class PickupReadyMail extends Mailable
     public function __construct(
         public Payment $payment
     ) {
-        $this->payment->loadMissing([
+        $this->payment = $payment->fresh([
             'customer.user',
             'invoice.repairRequest.device',
-        ]);
+        ]) ?? $payment;
     }
 
     public function envelope(): Envelope

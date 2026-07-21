@@ -99,10 +99,14 @@
                             $invoiceStatus = $invoice?->status;
                             $status = $currentRepairRequest->status;
 
-                            if ($invoiceStatus === 'unpaid') {
-                                $nextActionMessage = 'Payment is required before pickup.';
-                            } elseif ($invoiceStatus === 'paid') {
+                            if ($status === 'completed') {
+                                $nextActionMessage = 'Your device has been collected. This repair is fully completed. Thank you!';
+                            } elseif ($status === 'ready_for_pickup' || $invoiceStatus === 'paid') {
                                 $nextActionMessage = 'Your device is ready for pickup.';
+                            } elseif ($status === 'waiting_payment' || $invoiceStatus === 'unpaid') {
+                                $nextActionMessage = 'Payment is required before pickup.';
+                            } elseif ($status === 'repair_completed') {
+                                $nextActionMessage = 'Your repair is done. Please wait for the admin to generate your invoice.';
                             } else {
                                 $nextActionMessage = match ($status) {
                                     'submitted' => 'Your request is waiting for admin review.',
@@ -111,7 +115,6 @@
                                     'under_diagnosis' => 'The technician is diagnosing your device.',
                                     'in_repair' => 'Your device is currently being repaired.',
                                     'waiting_for_parts' => 'Your repair is waiting for spare parts.',
-                                    'completed' => 'Your repair is completed. Please review your invoice once it is available.',
                                     default => 'Check your repair details for the latest update.',
                                 };
                             }

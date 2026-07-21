@@ -178,6 +178,36 @@ class RepairRequestController extends Controller
             ->with('success', 'Technician has been assigned successfully.');
     }
 
+    /**
+     * Final step of the workflow: admin confirms the customer has physically
+     * collected the repaired device. This is the ONLY place the repair
+     * status is allowed to become 'completed'.
+     */
+    public function confirmPickup(RepairRequest $repairRequest): RedirectResponse
+    {
+        if ($repairRequest->status !== 'ready_for_pickup') {
+            return redirect()
+                ->route('admin.repair-requests.show', $repairRequest)
+                ->with('error', 'This repair request is not ready for pickup confirmation yet.');
+        }
+
+        $repairRequest->update([
+            'status' => 'completed',
+            'completed_date' => now()->toDateString(),
+        ]);
+
+        SystemNotification::create([
+            'user_id' => $repairRequest->customer->user_id,
+            'title' => 'Device Collected',
+            'message' => 'Thank you for collecting your device for repair request ' . $repairRequest->repair_code . '. This repair is now marked as completed.',
+            'type' => 'success',
+        ]);
+
+        return redirect()
+            ->route('admin.repair-requests.show', $repairRequest)
+            ->with('success', 'Repair request has been marked as completed after device collection.');
+    }
+
     private function findBestTechnicianForRequest(RepairRequest $repairRequest): ?Technician
     {
         $deviceType = $repairRequest->device?->device_type;
@@ -192,7 +222,16 @@ class RepairRequestController extends Controller
             ->where('availability_status', 'available')
             ->withCount([
                 'repairRequests as active_repair_requests_count' => function ($query): void {
-                    $query->whereNotIn('status', ['completed', 'rejected', 'cancelled', 'unable_to_repair']);
+                    $query->whereNotIn('status', [
+                        'repair_completed',
+                        'waiting_payment',
+                        'paid',
+                        'ready_for_pickup',
+                        'completed',
+                        'rejected',
+                        'cancelled',
+                        'unable_to_repair',
+                    ]);
                 },
             ])
             ->orderBy('active_repair_requests_count')

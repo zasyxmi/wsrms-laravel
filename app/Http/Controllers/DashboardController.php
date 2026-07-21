@@ -32,6 +32,10 @@ class DashboardController extends Controller
                     'under_diagnosis',
                     'in_repair',
                     'waiting_for_parts',
+                    'repair_completed',
+                    'waiting_payment',
+                    'paid',
+                    'ready_for_pickup',
                 ])->count(),
                 'completed_repairs' => RepairRequest::where('status', 'completed')->count(),
                 'unpaid_invoices' => Invoice::where('status', 'unpaid')->count(),
@@ -125,6 +129,10 @@ class DashboardController extends Controller
                         'under_diagnosis',
                         'in_repair',
                         'waiting_for_parts',
+                        'repair_completed',
+                        'waiting_payment',
+                        'paid',
+                        'ready_for_pickup',
                     ])
                     ->count(),
                 'completed_repairs' => RepairRequest::where('customer_id', $customer->id)

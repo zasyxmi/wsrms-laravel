@@ -242,11 +242,19 @@ class PaymentController extends Controller
                 'status' => 'paid',
             ]);
 
+            $invoice->repairRequest->update([
+                'status' => 'paid',
+            ]);
+
             SystemNotification::create([
                 'user_id' => $invoice->customer->user_id,
                 'title' => 'Payment Successful',
                 'message' => 'Your payment for invoice ' . $invoice->invoice_number . ' has been completed successfully.',
                 'type' => 'success',
+            ]);
+
+            $invoice->repairRequest->update([
+                'status' => 'ready_for_pickup',
             ]);
 
             SystemNotification::create([
@@ -276,7 +284,12 @@ class PaymentController extends Controller
             return;
         }
 
-        $payment->loadMissing('customer.user');
+        $payment = Payment::query()
+            ->with([
+                'customer.user',
+                'invoice.repairRequest.device',
+            ])
+            ->findOrFail($payment->id);
 
         try {
             Mail::to($payment->customer->user->email)

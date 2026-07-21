@@ -284,11 +284,34 @@ textarea:focus-visible {
     color: #0e7490;
 }
 
-.ws-status-completed,
+.ws-status-repair-completed {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #60a5fa;
+    color: #1e40af;
+}
+
+.ws-status-waiting-payment {
+    background: #ffedd5;
+    border-color: #fdba74;
+    color: #9a3412;
+}
+
 .ws-status-paid {
     background: #dcfce7;
     border-color: #86efac;
     color: #166534;
+}
+
+.ws-status-ready-for-pickup {
+    background: #f3e8ff;
+    border-color: #d8b4fe;
+    color: #6b21a8;
+}
+
+.ws-status-completed {
+    background: #bbf7d0;
+    border-color: #22c55e;
+    color: #14532d;
 }
 
 .ws-status-unpaid,
